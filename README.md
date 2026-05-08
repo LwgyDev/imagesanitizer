@@ -2,6 +2,8 @@
 
 A web utility and API designed to strip hidden metadata (EXIF, GPS, device information) from images. Built with FastAPI and Python, the service processes images entirely in memory to prevent data persistence on the server.
 
+![App Demo](assets/demo.gif)
+
 ## Features
 
 * **In-Memory Processing:** Images are processed using byte buffers and are never written to disk.
@@ -27,8 +29,8 @@ This is the fastest way to get the application running without managing local Py
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/LwgyDev/image-sanitizer.git](https://github.com/LwgyDev/image-sanitizer.git)
-   cd image-sanitizer
+   git clone https://github.com/LwgyDev/imagesanitizer.git
+   cd imagesanitizer
    ```
 
 2. Start the container:
@@ -46,8 +48,8 @@ If you prefer to run the application directly on your machine without Docker:
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/LwgyDev/image-sanitizer.git](https://github.com/LwgyDev/image-sanitizer.git)
-   cd image-sanitizer
+   git clone https://github.com/LwgyDev/imagesanitizer.git
+   cd imagesanitizer
    ```
 
 2. (Optional but recommended) Create and activate a virtual environment:
