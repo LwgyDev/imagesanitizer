@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Sanitizer API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/app.js" defer></script>
+    <style>
+        .drag-over {
+            border-color: #3b82f6 !important; 
+            background-color: #eff6ff !important; 
+        }
+    </style>
+</head>
+<body class="bg-[#faf9f6] min-h-screen font-sans text-gray-800 flex flex-col items-center">
+    
+    <nav class="w-full bg-white border-b border-gray-200 px-4 py-3 sm:px-6 lg:px-8 shadow-sm flex justify-between items-center mb-10">
+        <div class="flex items-center space-x-2">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            <span class="text-xl font-bold text-gray-900">Image<span class="text-blue-600"> Sanitizer</span></span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="/docs" target="_blank" class="text-sm font-medium text-gray-600 hover:text-blue-600 flex items-center transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                API Docs
+            </a>
+            <a href="https://github.com/LwgyDev" target="_blank" class="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                GitHub
+            </a>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl w-full px-4 sm:px-6 space-y-8 flex-grow">
+        <div class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">Protect Your Privacy</h1>
+            <p class="text-gray-600 sm:text-lg">
+                Drop an image below to securely strip hidden metadata before sharing it online.
+            </p>
+        </div>
+
+        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition bg-white shadow-sm">
+            <input type="file" id="file-input" class="hidden" accept="image/*">
+            <div class="flex flex-col items-center justify-center pointer-events-none">
+                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <p class="text-xl text-gray-700 font-semibold mb-1">Click to upload or drag & drop</p>
+                <p class="text-sm text-gray-500">Supports PNG, JPG, WEBP, and HEIC (Max 10MB)</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-semibold text-gray-800">Sanitization Settings</h3>
+                <span class="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded">Auto-saved</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="chk-strip-gps" checked class="sr-only peer setting-input">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-gray-700 font-medium">Strip GPS Data</span>
+                    </label>
+                    
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="chk-strip-device" checked class="sr-only peer setting-input">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-gray-700 font-medium">Strip Device Info</span>
+                    </label>
+                    
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="chk-keep-copyright" class="sr-only peer setting-input">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-gray-700 font-medium">Keep Copyright Info</span>
+                    </label>
+                    
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="chk-scramble-filename" class="sr-only peer setting-input">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-gray-700 font-medium">Scramble Filename</span>
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Output Format</label>
+                    <select id="sel-format" class="setting-input w-full border border-gray-300 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-gray-50 outline-none transition-shadow hover:shadow-sm cursor-pointer">
+                        <option value="original">Keep Original Format</option>
+                        <option value="jpeg">Convert to JPEG</option>
+                        <option value="png">Convert to PNG</option>
+                        <option value="webp">Convert to WEBP (Optimized)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading" class="hidden flex flex-col items-center justify-center py-8">
+            <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p class="text-blue-600 font-semibold animate-pulse">Processing image...</p>
+        </div>
+
+        <div id="result" class="hidden bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 space-y-6">
+            <div class="flex items-center justify-between flex-wrap gap-4 border-b border-gray-100 pb-4">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Processing Complete
+                </h2>
+                
+                <a id="download-btn" href="#" download="sanitized_image.jpg" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download Image
+                </a>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Stripped Metadata Log</h3>
+                <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                    <table class="min-w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 font-semibold">Metadata Tag Removed</th>
+                                <th scope="col" class="px-6 py-3 font-semibold">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metadata-table" class="divide-y divide-gray-200 bg-white">
+                        </tbody>
+                    </table>
+                </div>
+                <p id="no-metadata" class="hidden text-gray-500 text-sm italic mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200">Based on your settings, no additional metadata was removed from this image.</p>
+            </div>
+        </div>
+        
+        <div id="error-message" class="hidden bg-red-50 border border-red-100 p-4 rounded-lg shadow-sm mb-10">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                </div>
+                <div class="ml-3">
+                    <p id="error-text" class="text-sm text-red-800 font-medium"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="w-full text-center py-8 mt-auto text-sm text-gray-500 border-t border-gray-200 bg-white">
+        Built by <a href="https://github.com/LwgyDev" class="text-blue-600 font-medium hover:underline">Jaromír Staš</a>. 
+    </footer>
+</body>
+</html>
