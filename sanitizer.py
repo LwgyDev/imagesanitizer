@@ -12,7 +12,6 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-#prevent decompression bombs
 Image.MAX_IMAGE_PIXELS = 50_000_000
 
 pillow_heif.register_heif_opener()
@@ -58,9 +57,10 @@ async def sanitize_image(
         stripped_metadata = {}
 
         def clean_value(val):
+            """Ensures metadata values don't break JSON parsing."""
             if isinstance(val, bytes):
                 val = val.decode('utf-8', errors='ignore')
-            val_str = str(val)
+            val_str = str(val).replace('\x00', '').strip()
             if len(val_str) > 100:
                 return val_str[:100] + "... [TRUNCATED]"
             return val_str
@@ -76,19 +76,25 @@ async def sanitize_image(
             if not strip_gps:
                 tags_to_keep.add(34853)
 
-            for ifd_id in ExifTags.IFD:
+            for ifd_enum in ExifTags.IFD:
+                ifd_id = ifd_enum.value
                 try:
                     if ifd_id not in tags_to_keep and ifd_id in exif_data:
                         ifd_data = exif_data.get_ifd(ifd_id)
                         for sub_id, sub_val in ifd_data.items():
-                            tag_name = ExifTags.GPSTAGS.get(sub_id, sub_id) if ifd_id == ExifTags.IFD.GPSInfo else ExifTags.TAGS.get(sub_id, sub_id)
-                            stripped_metadata[f"{ifd_id.name}:{tag_name}"] = clean_value(sub_val)
+
+                            if ifd_id == ExifTags.IFD.GPSInfo.value:
+                                tag_name = ExifTags.GPSTAGS.get(sub_id, sub_id)
+                            else:
+                                tag_name = ExifTags.TAGS.get(sub_id, sub_id)
+                            
+                            stripped_metadata[f"{ifd_enum.name}:{tag_name}"] = clean_value(sub_val)
                         del exif_data[ifd_id]
                 except KeyError:
                     pass
 
             for tag_id in list(exif_data.keys()):
-                if tag_id not in tags_to_keep and tag_id not in ExifTags.IFD:
+                if tag_id not in tags_to_keep and tag_id not in [i.value for i in ExifTags.IFD]:
                     val = exif_data[tag_id]
                     tag_name = ExifTags.TAGS.get(tag_id, tag_id)
                     stripped_metadata[f"EXIF:{tag_name}"] = clean_value(val)
@@ -99,14 +105,13 @@ async def sanitize_image(
             exif_bytes = b""
 
         if image.info:
-            for key, value in image.info.items():
+            for key, value in list(image.info.items()):
                 if key not in ("exif", "icc_profile"): 
                     stripped_metadata[f"Info:{key}"] = clean_value(value)
 
         image.info.clear()
         clean_io = io.BytesIO()
         
-        #handle format conversions
         save_format = image.format if image.format else "JPEG"
         if output_format.lower() != "original" and output_format.lower() in ("jpeg", "png", "webp"):
             save_format = output_format.upper()
@@ -120,7 +125,6 @@ async def sanitize_image(
         image.save(clean_io, format=save_format, icc_profile=b"", exif=exif_bytes)
         clean_bytes = clean_io.getvalue()
 
-        #randomize filename if toggle is active
         if scramble_filename:
             ext = ".jpg" if save_format.lower() == "jpeg" else f".{save_format.lower()}"
             final_filename = f"sanitized_{uuid.uuid4().hex[:8]}{ext}"
@@ -129,7 +133,7 @@ async def sanitize_image(
             ext = ".jpg" if save_format.lower() == "jpeg" else f".{save_format.lower()}"
             final_filename = f"{base_name}{ext}"
 
-        meta_json = json.dumps(stripped_metadata)
+        meta_json = json.dumps(stripped_metadata, ensure_ascii=True)
         safe_meta = urllib.parse.quote(meta_json)
         safe_filename = urllib.parse.quote(final_filename)
 
