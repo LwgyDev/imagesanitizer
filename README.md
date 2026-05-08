@@ -68,6 +68,23 @@ If you prefer to run the application directly on your machine without Docker:
 
 5. Open your browser and navigate to `http://localhost:8000`
 
+## API Usage Example
+
+You can also interact directly with the REST API. 
+
+Here is an example of how to sanitize an image using `curl`, choosing to strip GPS data but keep copyright information, and converting the output to WEBP:
+
+```bash
+curl -X POST "http://localhost:8000/sanitize/" \
+     -H "accept: image/webp" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@/path/to/your/photo.jpg" \
+     -F "strip_gps=true" \
+     -F "keep_copyright=true" \
+     -F "output_format=webp" \
+     --output sanitized_photo.webp
+```
+
 ## API Documentation
 
 FastAPI automatically generates API documentation. Once the server is running, you can access the Swagger UI by navigating to:
